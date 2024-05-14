@@ -7,11 +7,11 @@ test:
 run: build
 	@./bin/ecom
 
-# migration:
-# 	@migrate create -ext sql -dir cmd/migrate/migrations $(filter-out $@,$(MAKECMDGOALS))
+migration:
+	@migrate create -ext sql -dir db/migrations $(filter-out $@,$(MAKECMDGOALS))
 
-# migrate-up:
-# 	@go run cmd/migrate/main.go up
+migrate-up:
+	@go run cmd/migrate/main.go up
 
-# migrate-down:
-# 	@go run cmd/migrate/main.go down
+migrate-down:
+	@go run cmd/migrate/main.go down
