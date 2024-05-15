@@ -1,11 +1,11 @@
 build:
-	@go build -o bin/ecom src/main.go
+	@go build -o bin/health-record src/main.go
 
 test:
 	@go test -v ./...
 	
 run: build
-	@./bin/ecom
+	@./bin/health-record
 
 migration:
 	@migrate create -ext sql -dir db/migrations $(filter-out $@,$(MAKECMDGOALS))

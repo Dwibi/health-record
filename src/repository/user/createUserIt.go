@@ -6,15 +6,16 @@ import (
 	"github.com/dwibi/health-record/src/entities"
 )
 
-type ParamsCreateUserIt struct {
-	NIP      string
-	Name     string
-	Password string
+type ParamsCreateUser struct {
+	NIP                 string
+	Name                string
+	Password            string
+	IdentityCardScanImg string
 }
 
-func (i *sUserRepository) CreateUserIt(p *ParamsCreateUserIt) (*entities.User, error) {
+func (i *sUserRepository) CreateUser(p *ParamsCreateUser) (*entities.User, error) {
 	var id int64
-	err := i.DB.QueryRow("INSERT INTO users (nip, name, password) VALUES ($1, $2, $3) RETURNING id;", p.NIP, p.Name, p.Password).Scan(&id)
+	err := i.DB.QueryRow("INSERT INTO users (nip, name, password, identity_card_scan_img) VALUES ($1, $2, $3, $4) RETURNING id;", p.NIP, p.Name, p.Password, p.IdentityCardScanImg).Scan(&id)
 
 	if err != nil {
 		log.Printf("Error inserting user: %v", err)

@@ -11,6 +11,9 @@ type V1User struct {
 
 type iV1User interface {
 	RegisterIt(http.ResponseWriter, *http.Request)
+	LoginIt(http.ResponseWriter, *http.Request)
+	LoginNurse(http.ResponseWriter, *http.Request)
+	RegisterNurse(http.ResponseWriter, *http.Request)
 }
 
 func New(v1User *V1User) iV1User {

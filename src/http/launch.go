@@ -31,6 +31,7 @@ func (h *Http) Launch() error {
 	})
 
 	v1.RegisterHello()
+	v1.RegisterUser()
 
 	log.Println("Listening on", ":8080")
 

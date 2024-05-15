@@ -13,6 +13,7 @@ type RouterTest struct {
 
 type iRoutes interface {
 	RegisterHello()
+	RegisterUser()
 }
 
 func New(routes *RouterTest) iRoutes {

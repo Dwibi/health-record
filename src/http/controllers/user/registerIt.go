@@ -3,6 +3,7 @@ package v1usercontroller
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/dwibi/health-record/src/helpers"
 	userrepository "github.com/dwibi/health-record/src/repository/user"
@@ -11,7 +12,7 @@ import (
 )
 
 type registerRequest struct {
-	NIP      string `json:"nip" validate:"required,len=13"`
+	NIP      int    `json:"nip" validate:"required,number"`
 	Name     string `json:"name" validate:"required,min=5,max=50"`
 	Password string `json:"password" validate:"required,min=5,max=33"`
 }
@@ -41,24 +42,32 @@ func (u V1User) RegisterIt(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	nipStr := strconv.Itoa(payload.NIP)
+
+	// TODO: Validate NIP
+	if err := helpers.ValidateNIP(nipStr, "it"); err != nil {
+		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
+		return
+	}
+
 	// create usecase
 	uu := userusecase.New(
 		userrepository.New(u.DB),
 	)
 
 	// use usecase to register IT user
-	data, err := uu.RegisterIt(&userusecase.ParamsRegisterUserIt{
-		NIP:      payload.NIP,
+	data, status, err := uu.RegisterIt(&userusecase.ParamsRegisterUserIt{
+		NIP:      nipStr,
 		Name:     payload.Name,
 		Password: payload.Password,
 	})
 
 	if err != nil {
-		helpers.WriteJSON(w, http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		helpers.WriteJSON(w, status, ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	helpers.WriteJSON(w, http.StatusCreated, SuccessResponse{
+	helpers.WriteJSON(w, status, SuccessResponse{
 		Message: "User registered successfully",
 		Data:    data,
 	})

@@ -14,11 +14,11 @@ func CreateConnection() (*sql.DB, error) {
 	dbUsername := os.Getenv("DB_USERNAME")
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbHost := os.Getenv("DB_HOST")
-	// dbPort := os.Getenv("DB_PORT")
+	dbPort := os.Getenv("DB_PORT")
 	dbName := os.Getenv("DB_NAME")
 	dbParams := os.Getenv("DB_PARAMS")
 
-	strConnection := fmt.Sprintf("postgres://%s:%s@%s/%s?%s", dbUsername, dbPassword, dbHost, dbName, dbParams)
+	strConnection := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?%s", dbUsername, dbPassword, dbHost, dbPort, dbName, dbParams)
 	fmt.Println(strConnection)
 
 	// Define connection pool parameters (adjust as needed)
