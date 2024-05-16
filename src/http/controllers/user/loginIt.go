@@ -35,11 +35,15 @@ func (u V1User) LoginIt(w http.ResponseWriter, r *http.Request) {
 	nipStr := strconv.Itoa(payload.NIP)
 
 	// TODO: Validate NIP
-	if err := helpers.ValidateNIP(nipStr, "it"); err != nil {
+	if err := helpers.ValidateNIP(nipStr); err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
 		return
 	}
 
+	if isIT := helpers.IsItUser(nipStr); !isIT {
+		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: "nip should start 615"})
+		return
+	}
 	// create usecase
 	uu := userusecase.New(
 		userrepository.New(u.DB),

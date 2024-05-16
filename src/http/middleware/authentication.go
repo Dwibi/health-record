@@ -21,11 +21,9 @@ func AuthMiddleware(handlerFunc http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		// fmt.Println(authHeader)
+		log.Println("masuk")
 
 		tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
-
-		// fmt.Println(tokenString)
 
 		// Parse the JWT token
 		token, err := jwt.ParseWithClaims(tokenString, &helpers.Claims{}, func(token *jwt.Token) (interface{}, error) {
@@ -35,21 +33,23 @@ func AuthMiddleware(handlerFunc http.HandlerFunc) http.HandlerFunc {
 		// TODO: create errorResponse for this
 		if err != nil {
 			helpers.WriteJSON(w, http.StatusUnauthorized, "Unauthorized")
+			fmt.Println("errornya di sini")
 			log.Println(err)
 			return
 		}
 
 		// Verify the token and extract claims
 		claims, ok := token.Claims.(*helpers.Claims)
-		fmt.Println(claims.UserId)
-		fmt.Println(claims.Nip)
+
 		if !ok || !token.Valid {
 			helpers.WriteJSON(w, http.StatusUnauthorized, "Unauthorized")
 			return
 		}
 
+		fmt.Println(claims.UserId)
+
 		// Attach user information to the request context
-		ctx := context.WithValue(r.Context(), helpers.UserContextKey, claims.Nip)
+		ctx := context.WithValue(r.Context(), helpers.UserContextKey, claims.UserId)
 		handlerFunc(w, r.WithContext(ctx))
 	}
 }

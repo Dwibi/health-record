@@ -49,7 +49,7 @@ func (i *sUserUseCase) RegisterIt(r *ParamsRegisterUserIt) (*ResultUser, int, er
 	}
 
 	// Generate JWT Token
-	token, err := helpers.GenerateJwtToken(&helpers.ParamGenerateJWT{
+	token, err := helpers.CreateUserToken(&helpers.ParamCreateUser{
 		UserId:          data.ID,
 		ExpiredInMinute: 400,
 		SecretKey:       []byte(os.Getenv("JWT_SECRET")),
@@ -62,7 +62,7 @@ func (i *sUserUseCase) RegisterIt(r *ParamsRegisterUserIt) (*ResultUser, int, er
 	strconv.Atoi(r.NIP)
 
 	return &ResultUser{
-		UserId:      strconv.FormatInt(data.ID, 10),
+		UserId:      strconv.Itoa(data.ID),
 		NIP:         func() int { n, _ := strconv.Atoi(r.NIP); return n }(), // Convert r.NIP to int inline,
 		Name:        r.Name,
 		AccessToken: token,

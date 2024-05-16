@@ -36,10 +36,9 @@ func (i *sUserUseCase) LoginIt(r *ParamsLoginUserIt) (*ResultUser, int, error) {
 	nipInt, _ := strconv.Atoi(r.NIP)
 
 	// Generate JWT Token
-	token, err := helpers.GenerateJwtToken(&helpers.ParamGenerateJWT{
+	token, err := helpers.CreateUserToken(&helpers.ParamCreateUser{
 		UserId:          data.ID,
 		ExpiredInMinute: 400,
-		Nip:             nipInt,
 		SecretKey:       []byte(os.Getenv("JWT_SECRET")),
 	})
 	if err != nil {
@@ -47,7 +46,7 @@ func (i *sUserUseCase) LoginIt(r *ParamsLoginUserIt) (*ResultUser, int, error) {
 	}
 
 	return &ResultUser{
-		UserId:      strconv.FormatInt(data.ID, 10),
+		UserId:      strconv.Itoa(data.ID),
 		NIP:         nipInt,
 		Name:        data.Name,
 		AccessToken: token,

@@ -30,8 +30,12 @@ func (u V1User) LoginNurse(w http.ResponseWriter, r *http.Request) {
 	nipStr := strconv.Itoa(payload.NIP)
 
 	// TODO: Validate NIP
-	if err := helpers.ValidateNIP(nipStr, "nurse"); err != nil {
+	if err := helpers.ValidateNIP(nipStr); err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
+		return
+	}
+	if isNurse := helpers.IsItNurse(nipStr); !isNurse {
+		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: "nip should start 303"})
 		return
 	}
 

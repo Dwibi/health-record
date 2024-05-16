@@ -9,27 +9,28 @@ import (
 	userrepository "github.com/dwibi/health-record/src/repository/user"
 	userusecase "github.com/dwibi/health-record/src/usecase/user"
 	"github.com/go-playground/validator/v10"
+	"github.com/gorilla/mux"
 )
 
-type registerRequest struct {
-	NIP      int    `json:"nip" validate:"required,number"`
-	Name     string `json:"name" validate:"required,min=5,max=50"`
-	Password string `json:"password" validate:"required,min=5,max=33"`
+type updateNurseRequest struct {
+	NIP  int    `json:"nip" validate:"required,number"`
+	Name string `json:"name" validate:"required,min=5,max=50"`
 }
 
-type ErrorResponse struct {
-	Message string `json:"message"`
-}
+func (u V1User) UpdateNurse(w http.ResponseWriter, r *http.Request) {
+	// Access the user information from the request context
+	userIdClaims, ok := r.Context().Value(helpers.UserContextKey).(int)
+	if !ok {
+		http.Error(w, "User information not found in context", http.StatusInternalServerError)
+		return
+	}
 
-type SuccessResponse struct {
-	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
-}
-
-func (u V1User) RegisterIt(w http.ResponseWriter, r *http.Request) {
-	payload := new(registerRequest)
+	// get user nurse id
+	vars := mux.Vars(r)
+	userId, _ := strconv.Atoi(vars["userId"])
 
 	// check payload
+	payload := new(updateNurseRequest)
 	if err := helpers.ParseJSON(r, &payload); err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
 		return
@@ -44,14 +45,14 @@ func (u V1User) RegisterIt(w http.ResponseWriter, r *http.Request) {
 
 	nipStr := strconv.Itoa(payload.NIP)
 
-	// TODO: Validate NIP
+	// Validate NIP
 	if err := helpers.ValidateNIP(nipStr); err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	if isIT := helpers.IsItUser(nipStr); !isIT {
-		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: "nip should start 615"})
+	if isNurse := helpers.IsItNurse(nipStr); !isNurse {
+		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: "nip should start 303"})
 		return
 	}
 
@@ -61,10 +62,11 @@ func (u V1User) RegisterIt(w http.ResponseWriter, r *http.Request) {
 	)
 
 	// use usecase to register IT user
-	data, status, err := uu.RegisterIt(&userusecase.ParamsRegisterUserIt{
-		NIP:      nipStr,
-		Name:     payload.Name,
-		Password: payload.Password,
+	status, err := uu.UpdateNurse(&userusecase.ParamsUpdateUserNurse{
+		ReqUserId: userIdClaims,
+		Id:        userId,
+		NIP:       nipStr,
+		Name:      payload.Name,
 	})
 
 	if err != nil {
@@ -73,7 +75,7 @@ func (u V1User) RegisterIt(w http.ResponseWriter, r *http.Request) {
 	}
 
 	helpers.WriteJSON(w, status, SuccessResponse{
-		Message: "User registered successfully",
-		Data:    data,
+		Message: "Nurse user updated successfully",
+		Data:    nil,
 	})
 }

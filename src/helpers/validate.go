@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
 	"strconv"
 	"time"
@@ -20,17 +19,9 @@ var Validate = validator.New()
 	- the eleventh and thirteenth, fill it with three random digit, starts from `000` till `999`
 */
 
-func ValidateNIP(nip string, role string) error {
+func ValidateNIP(nip string) error {
 	if len(nip) != 13 {
 		return errors.New("nip must be 13 digits")
-	}
-
-	if role == "it" && nip[:3] != "615" {
-		return errors.New("nip should start with 615")
-	}
-
-	if role == "nurse" && nip[:3] != "303" {
-		return errors.New("nip should start with 303")
 	}
 
 	if nip[3] != '1' && nip[3] != '2' {
@@ -47,7 +38,7 @@ func ValidateNIP(nip string, role string) error {
 	// Check the month part (9th to 10th digit)
 	month, err := strconv.Atoi(nip[8:10])
 	if err != nil || month < 1 || month > 12 {
-		return errors.New("the fifth and eigth digit, must fill it with a year, starts from `2000` till current year")
+		return errors.New("the ninth and tenth, fill it with month, starts from `01` till `12`")
 	}
 
 	randomDigits := nip[10:13]
@@ -58,9 +49,14 @@ func ValidateNIP(nip string, role string) error {
 	return nil
 }
 
-func IsItUser(nip int) bool {
-	nipStr := strconv.Itoa(nip)
-	fmt.Println(nipStr[:3] == "615")
+func IsItUser(nip string) bool {
+	nipStr := nip
 
 	return nipStr[:3] == "615"
+}
+
+func IsItNurse(nip string) bool {
+	nipStr := nip
+
+	return nipStr[:3] == "303"
 }

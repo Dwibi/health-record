@@ -7,11 +7,10 @@ import (
 )
 
 type (
-	ParamGenerateJWT struct {
+	ParamCreateUser struct {
 		ExpiredInMinute int
 		SecretKey       []byte
-		UserId          int64
-		Nip             int
+		UserId          int
 	}
 	ParamsValidateJWT struct {
 		Token     string
@@ -21,19 +20,19 @@ type (
 	contextKey string
 
 	Claims struct {
-		UserId int64 `json:"userId"`
-		Nip    int   `json:"nip"`
+		UserId int `json:"userId"`
 		jwt.StandardClaims
 	}
 )
 
 const UserContextKey contextKey = "user"
 
-func GenerateJwtToken(p *ParamGenerateJWT) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userId":    p.UserId,
-		"nip":       p.Nip,
-		"expiresAt": time.Now().Add(time.Duration(p.ExpiredInMinute) * time.Minute).Unix(),
+func CreateUserToken(p *ParamCreateUser) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
+		UserId: p.UserId,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Duration(p.ExpiredInMinute) * time.Minute).Unix(),
+		},
 	})
 
 	tokenString, err := token.SignedString(p.SecretKey)

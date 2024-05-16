@@ -19,20 +19,13 @@ type registerNurseRequest struct {
 
 func (u V1User) RegisterNurse(w http.ResponseWriter, r *http.Request) {
 	// Access the user information from the request context
-	userClaimsNip, ok := r.Context().Value(helpers.UserContextKey).(int)
+	userIdClaims, ok := r.Context().Value(helpers.UserContextKey).(int)
 	if !ok {
 		http.Error(w, "User information not found in context", http.StatusInternalServerError)
 		return
 	}
 
-	// validate if is IT user
-	if itUser := helpers.IsItUser(userClaimsNip); !itUser {
-		helpers.WriteJSON(
-			w, http.StatusUnauthorized, ErrorResponse{Message: "Unauthorized"})
-		return
-	}
-
-	fmt.Println(userClaimsNip)
+	fmt.Println(userIdClaims)
 
 	payload := new(registerNurseRequest)
 
@@ -52,8 +45,13 @@ func (u V1User) RegisterNurse(w http.ResponseWriter, r *http.Request) {
 	nipStr := strconv.Itoa(payload.NIP)
 
 	// TODO: Validate NIP
-	if err := helpers.ValidateNIP(nipStr, "nurse"); err != nil {
+	if err := helpers.ValidateNIP(nipStr); err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	if isNurse := helpers.IsItNurse(nipStr); !isNurse {
+		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: "nip should start 303"})
 		return
 	}
 
@@ -64,6 +62,7 @@ func (u V1User) RegisterNurse(w http.ResponseWriter, r *http.Request) {
 
 	// use usecase to register IT user
 	data, status, err := uu.RegisterNurse(&userusecase.ParamsRegisterUserNurse{
+		ReqUserId:           userIdClaims,
 		NIP:                 nipStr,
 		Name:                payload.Name,
 		IdentityCardScanImg: payload.IdentityCardScanImg,

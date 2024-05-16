@@ -11,12 +11,27 @@ import (
 )
 
 type ParamsRegisterUserNurse struct {
+	ReqUserId           int
 	NIP                 string
 	Name                string
 	IdentityCardScanImg string
 }
 
 func (i *sUserUseCase) RegisterNurse(r *ParamsRegisterUserNurse) (*ResultUser, int, error) {
+	// check user role that request this call
+	user, err := i.userRepository.GetUserById(r.ReqUserId)
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
+
+	if user == nil {
+		return nil, http.StatusUnauthorized, errors.New("unauthorize")
+	}
+
+	if isIT := helpers.IsItUser(user.NIP); !isIT {
+		return nil, http.StatusUnauthorized, errors.New("unauthorize")
+	}
+
 	// check if nip already exists
 	isNipExist, _ := i.userRepository.IsExist(r.NIP)
 
@@ -36,7 +51,7 @@ func (i *sUserUseCase) RegisterNurse(r *ParamsRegisterUserNurse) (*ResultUser, i
 	}
 
 	// Generate JWT Token
-	token, err := helpers.GenerateJwtToken(&helpers.ParamGenerateJWT{
+	token, err := helpers.CreateUserToken(&helpers.ParamCreateUser{
 		UserId:          data.ID,
 		ExpiredInMinute: 400,
 		SecretKey:       []byte(os.Getenv("JWT_SECRET")),
@@ -49,7 +64,7 @@ func (i *sUserUseCase) RegisterNurse(r *ParamsRegisterUserNurse) (*ResultUser, i
 	strconv.Atoi(r.NIP)
 
 	return &ResultUser{
-		UserId:      strconv.FormatInt(data.ID, 10),
+		UserId:      strconv.Itoa(data.ID),
 		NIP:         func() int { n, _ := strconv.Atoi(r.NIP); return n }(), // Convert r.NIP to int inline,
 		Name:        r.Name,
 		AccessToken: token,

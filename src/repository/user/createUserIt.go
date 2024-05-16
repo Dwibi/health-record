@@ -14,7 +14,7 @@ type ParamsCreateUser struct {
 }
 
 func (i *sUserRepository) CreateUser(p *ParamsCreateUser) (*entities.User, error) {
-	var id int64
+	var id int
 	err := i.DB.QueryRow("INSERT INTO users (nip, name, password, identity_card_scan_img) VALUES ($1, $2, $3, $4) RETURNING id;", p.NIP, p.Name, p.Password, p.IdentityCardScanImg).Scan(&id)
 
 	if err != nil {
