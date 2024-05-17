@@ -1,4 +1,4 @@
-package v1usercontroller
+package v1patientcontroller
 
 import (
 	"fmt"
@@ -8,11 +8,12 @@ import (
 
 	"github.com/dwibi/health-record/src/entities"
 	"github.com/dwibi/health-record/src/helpers"
+	patientrepository "github.com/dwibi/health-record/src/repository/patient"
 	userrepository "github.com/dwibi/health-record/src/repository/user"
-	userusecase "github.com/dwibi/health-record/src/usecase/user"
+	patientusecase "github.com/dwibi/health-record/src/usecase/patient"
 )
 
-func (u V1User) FindMany(w http.ResponseWriter, r *http.Request) {
+func (u V1Patient) FindMany(w http.ResponseWriter, r *http.Request) {
 	// Access the user information from the request context
 	userIdClaims, ok := r.Context().Value(helpers.UserContextKey).(int)
 	if !ok {
@@ -20,18 +21,18 @@ func (u V1User) FindMany(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filters := &entities.UserSearchFilter{}
+	filters := &entities.PatientSearchFilter{}
 	queryParams := r.URL.Query()
 
-	if userIdStr := queryParams.Get("userId"); userIdStr != "" {
-		userId, err := strconv.Atoi(userIdStr)
+	if identityStr := queryParams.Get("identityNumber"); identityStr != "" {
+		identityNum, err := strconv.Atoi(identityStr)
 		if err != nil {
 			helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{
 				Message: "Invalid value for 'userId'",
 			})
 			return
 		}
-		filters.UserId = userId
+		filters.IdentityNumber = identityNum
 	}
 
 	if limitStr := queryParams.Get("limit"); limitStr != "" {
@@ -60,19 +61,15 @@ func (u V1User) FindMany(w http.ResponseWriter, r *http.Request) {
 		filters.Name = name
 	}
 
-	if nipStr := queryParams.Get("nip"); nipStr != "" {
-		nip, err := strconv.Atoi(nipStr)
+	if phoneStr := queryParams.Get("phoneNumber"); phoneStr != "" {
+		phoneNum, err := strconv.Atoi(phoneStr)
 		if err != nil {
 			helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{
-				Message: "Invalid value for 'nip'",
+				Message: "Invalid value for 'phoneNumber'",
 			})
 			return
 		}
-		filters.NIP = nip
-	}
-
-	if role := queryParams.Get("role"); role != "" {
-		filters.Role = role
+		filters.PhoneNumber = phoneNum
 	}
 
 	if createdAt := queryParams.Get("createdAt"); createdAt != "" {
@@ -82,18 +79,18 @@ func (u V1User) FindMany(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	fmt.Println("||||||||||||")
 	fmt.Println(filters)
 
 	// create usecase
-	uu := userusecase.New(
+	uu := patientusecase.New(
+		patientrepository.New(u.DB),
 		userrepository.New(u.DB),
 	)
 
-	// use usecase to register IT user
-	data, status, err := uu.FindMany(&userusecase.ParamsFindMany{
-		QuerySearch: filters,
+	// use usecase to get data patient
+	data, status, err := uu.FindMany(&patientusecase.ParamsFindMany{
 		ReqUserId:   userIdClaims,
+		QuerySearch: filters,
 	})
 
 	if err != nil {

@@ -1,4 +1,4 @@
-package v1usercontroller
+package v1recordcontroller
 
 import (
 	"fmt"
@@ -8,11 +8,13 @@ import (
 
 	"github.com/dwibi/health-record/src/entities"
 	"github.com/dwibi/health-record/src/helpers"
+	patientrepository "github.com/dwibi/health-record/src/repository/patient"
+	recordrepository "github.com/dwibi/health-record/src/repository/record"
 	userrepository "github.com/dwibi/health-record/src/repository/user"
-	userusecase "github.com/dwibi/health-record/src/usecase/user"
+	recordusecase "github.com/dwibi/health-record/src/usecase/record"
 )
 
-func (u V1User) FindMany(w http.ResponseWriter, r *http.Request) {
+func (u V1Record) FindMany(w http.ResponseWriter, r *http.Request) {
 	// Access the user information from the request context
 	userIdClaims, ok := r.Context().Value(helpers.UserContextKey).(int)
 	if !ok {
@@ -20,18 +22,26 @@ func (u V1User) FindMany(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filters := &entities.UserSearchFilter{}
+	filters := &entities.RecordSearchFilter{}
 	queryParams := r.URL.Query()
 
-	if userIdStr := queryParams.Get("userId"); userIdStr != "" {
-		userId, err := strconv.Atoi(userIdStr)
+	if identityStr := queryParams.Get("identityDetail.identityNumber"); identityStr != "" {
+		identityNum, err := strconv.Atoi(identityStr)
 		if err != nil {
 			helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{
 				Message: "Invalid value for 'userId'",
 			})
 			return
 		}
-		filters.UserId = userId
+		filters.IdentityNumber = identityNum
+	}
+
+	if userIdStr := queryParams.Get("createdBy.userId"); userIdStr != "" {
+		filters.UserId = userIdStr
+	}
+
+	if userNipStr := queryParams.Get("createdBy.nip"); userNipStr != "" {
+		filters.UserId = userNipStr
 	}
 
 	if limitStr := queryParams.Get("limit"); limitStr != "" {
@@ -56,25 +66,6 @@ func (u V1User) FindMany(w http.ResponseWriter, r *http.Request) {
 		filters.Offset = offset
 	}
 
-	if name := queryParams.Get("name"); name != "" {
-		filters.Name = name
-	}
-
-	if nipStr := queryParams.Get("nip"); nipStr != "" {
-		nip, err := strconv.Atoi(nipStr)
-		if err != nil {
-			helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{
-				Message: "Invalid value for 'nip'",
-			})
-			return
-		}
-		filters.NIP = nip
-	}
-
-	if role := queryParams.Get("role"); role != "" {
-		filters.Role = role
-	}
-
 	if createdAt := queryParams.Get("createdAt"); createdAt != "" {
 		lowCreatedAt := strings.ToLower(createdAt)
 		if lowCreatedAt == "asc" || lowCreatedAt == "desc" {
@@ -82,18 +73,19 @@ func (u V1User) FindMany(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	fmt.Println("||||||||||||")
 	fmt.Println(filters)
 
 	// create usecase
-	uu := userusecase.New(
+	uu := recordusecase.New(
+		recordrepository.New(u.DB),
+		patientrepository.New(u.DB),
 		userrepository.New(u.DB),
 	)
 
-	// use usecase to register IT user
-	data, status, err := uu.FindMany(&userusecase.ParamsFindMany{
-		QuerySearch: filters,
+	// use usecase to get data patient
+	data, status, err := uu.FindMany(&recordusecase.ParamsFindMany{
 		ReqUserId:   userIdClaims,
+		QuerySearch: filters,
 	})
 
 	if err != nil {

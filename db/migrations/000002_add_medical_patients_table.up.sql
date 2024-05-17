@@ -7,7 +7,7 @@ END $$;
 
 CREATE TABLE IF NOT EXISTS medical_patients (
     id SERIAL PRIMARY KEY,
-    identity_number CHAR(16) NOT NULL,
+    identity_number CHAR(16) NOT NULL UNIQUE,
     phone_number VARCHAR(20) NOT NULL,
     name VARCHAR(255) NOT NULL,
     birth_date DATE NOT NULL,

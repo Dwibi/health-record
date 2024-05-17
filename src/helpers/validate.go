@@ -4,6 +4,7 @@ import (
 	"errors"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -59,4 +60,19 @@ func IsItNurse(nip string) bool {
 	nipStr := nip
 
 	return nipStr[:3] == "303"
+}
+
+func ValidateIdentityNum(identityNum int) bool {
+	identityStr := strconv.Itoa(identityNum)
+	return len(identityStr) == 16
+}
+
+func ValidateInaPhoneNum(phoneNum string) bool {
+	// identityStr := strconv.Itoa(identityNum)
+	return strings.HasPrefix(phoneNum, "+62")
+}
+
+func ValidateGender(gender string) bool {
+	// identityStr := strconv.Itoa(identityNum)
+	return strings.ToLower(gender) == "male" || strings.ToLower(gender) == "female"
 }
