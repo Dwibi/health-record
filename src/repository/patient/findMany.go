@@ -1,7 +1,6 @@
 package patientrepository
 
 import (
-	"fmt"
 	"log"
 	"reflect"
 	"strconv"
@@ -21,7 +20,7 @@ type ResultFindMany struct {
 }
 
 func (i *sPatientRepository) FindMany(filters *entities.PatientSearchFilter) ([]*ResultFindMany, error) {
-	query := "SELECT identity_number, phone_number, name, birth_date, gender, created_at FROM users WHERE 1=1"
+	query := "SELECT identity_number, phone_number, name, birth_date, gender, created_at FROM medical_patients WHERE 1=1"
 	params := []interface{}{}
 
 	n := (&entities.PatientSearchFilter{})
@@ -35,7 +34,7 @@ func (i *sPatientRepository) FindMany(filters *entities.PatientSearchFilter) ([]
 		}
 
 		if filters.PhoneNumber != 0 {
-			conditions = append(conditions, "id LIKE $"+strconv.Itoa(len(params)+1))
+			conditions = append(conditions, "phone_number LIKE $"+strconv.Itoa(len(params)+1))
 			params = append(params, "%"+strconv.Itoa(filters.PhoneNumber)+"%")
 		}
 
@@ -58,7 +57,7 @@ func (i *sPatientRepository) FindMany(filters *entities.PatientSearchFilter) ([]
 			query += " ORDER BY created_at ASC"
 		}
 	} else {
-		query += " ORDER BY created_at ASC"
+		query += " ORDER BY created_at DESC"
 	}
 
 	if filters.Limit == 0 {
@@ -75,7 +74,7 @@ func (i *sPatientRepository) FindMany(filters *entities.PatientSearchFilter) ([]
 		params = append(params, filters.Offset)
 	}
 
-	fmt.Println(query)
+	// fmt.Println(query)
 
 	rows, err := i.DB.Query(query, params...)
 	if err != nil {
@@ -88,14 +87,16 @@ func (i *sPatientRepository) FindMany(filters *entities.PatientSearchFilter) ([]
 	for rows.Next() {
 		c := new(ResultFindMany)
 		var identityNum string
-		err := rows.Scan(&identityNum, &c.PhoneNumber, &c.Name, &c.CreatedAt)
+		err := rows.Scan(&identityNum, &c.PhoneNumber, &c.Name, &c.BirthDate, &c.Gender, &c.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
 		c.IdentityNumber = func() int { n, _ := strconv.Atoi(identityNum); return n }()
-		fmt.Println(c)
+		// fmt.Println(c)
 		users = append(users, c)
 	}
+
+	log.Println(filters)
 
 	if err := rows.Err(); err != nil {
 		return nil, err

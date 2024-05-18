@@ -5,12 +5,14 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	routes "github.com/dwibi/health-record/src/http/routers"
 	"github.com/gorilla/mux"
 )
 
 type Http struct {
-	DB *sql.DB
+	DB       *sql.DB
+	Uploader *manager.Uploader
 }
 
 type iHttp interface {
@@ -26,12 +28,16 @@ func (h *Http) Launch() error {
 	subrouter := router.PathPrefix("/v1").Subrouter()
 
 	v1 := routes.New(&routes.RouterTest{
-		Router: subrouter,
-		DB:     h.DB,
+		Router:   subrouter,
+		DB:       h.DB,
+		Uploader: h.Uploader,
 	})
 
 	v1.RegisterHello()
 	v1.RegisterUser()
+	v1.RegisterPatient()
+	v1.RegisterRecord()
+	v1.RegisterUpload()
 
 	log.Println("Listening on", ":8080")
 

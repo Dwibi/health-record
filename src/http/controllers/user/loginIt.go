@@ -41,7 +41,7 @@ func (u V1User) LoginIt(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if isIT := helpers.IsItUser(nipStr); !isIT {
-		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: "nip should start 615"})
+		helpers.WriteJSON(w, http.StatusNotFound, ErrorResponse{Message: "nip should start 615"})
 		return
 	}
 	// create usecase

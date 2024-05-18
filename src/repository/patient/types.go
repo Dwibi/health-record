@@ -13,6 +13,7 @@ type sPatientRepository struct {
 type IPatientRepository interface {
 	Create(*ParamsCreate) error
 	FindMany(*entities.PatientSearchFilter) ([]*ResultFindMany, error)
+	IsExist(string) (bool, error)
 }
 
 func New(db *sql.DB) IPatientRepository {

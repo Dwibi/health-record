@@ -2,7 +2,6 @@ package userusecase
 
 import (
 	"errors"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -17,7 +16,7 @@ func (i *sUserUseCase) LoginNurse(r *ParamsLoginUserIt) (*ResultUser, int, error
 		NIP: r.NIP,
 	})
 
-	log.Println(data)
+	// log.Println(data)
 
 	if err != nil {
 		return nil, http.StatusInternalServerError, err

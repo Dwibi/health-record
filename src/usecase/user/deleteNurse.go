@@ -38,7 +38,7 @@ func (i *sUserUseCase) DeleteNurse(r *ParamsUpdateUserNurseAccess) (int, error) 
 	}
 
 	if isNurse := helpers.IsItNurse(user.NIP); !isNurse {
-		return http.StatusBadRequest, errors.New("userId isn't nurse")
+		return http.StatusNotFound, errors.New("userId isn't nurse / user nip not start with 303")
 	}
 
 	// delete nurse user into database using repository

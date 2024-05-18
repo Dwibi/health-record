@@ -2,6 +2,7 @@ package v1patientcontroller
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -13,10 +14,11 @@ import (
 )
 
 type createRequest struct {
-	IdentityNumber      int    `json:"nip" validate:"required,number"`
+	IdentityNumber      int    `json:"identityNumber" validate:"required,number"`
 	PhoneNumber         string `json:"phoneNumber" validate:"required,min=10,max=15"`
 	Name                string `json:"name" validate:"required,min=3,max=30"`
 	Gender              string `json:"gender" validate:"required"`
+	BirthDate           string `json:"birthDate" validate:"required"`
 	IdentityCardScanImg string `json:"identityCardScanImg" validate:"required,url"`
 }
 
@@ -53,8 +55,19 @@ func (u V1Patient) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if isGender := helpers.ValidateGender(payload.PhoneNumber); !isGender {
-		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: "gender only accept male or female"})
+	if isGenderValid := helpers.ValidateGender(payload.Gender); !isGenderValid {
+		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: "should be 'male' or 'female'"})
+		return
+	}
+
+	if isDateValid := helpers.ValidateDateFormat(payload.BirthDate); !isDateValid {
+		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: "should be string with ISO 8601 format"})
+		log.Println(isDateValid)
+		return
+	}
+
+	if err := helpers.ValidateURLWithDomain(payload.IdentityCardScanImg); err != nil {
+		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
 		return
 	}
 
@@ -71,6 +84,7 @@ func (u V1Patient) Create(w http.ResponseWriter, r *http.Request) {
 		PhoneNumber:         payload.PhoneNumber,
 		Name:                payload.Name,
 		Gender:              strings.ToLower(payload.Gender),
+		BirthDate:           payload.BirthDate,
 		IdentityCardScanImg: payload.IdentityCardScanImg,
 	})
 

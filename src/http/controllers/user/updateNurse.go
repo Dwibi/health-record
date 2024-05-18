@@ -52,9 +52,11 @@ func (u V1User) UpdateNurse(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if isNurse := helpers.IsItNurse(nipStr); !isNurse {
-		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: "nip should start 303"})
+		helpers.WriteJSON(w, http.StatusNotFound, ErrorResponse{Message: "nip should start 303"})
 		return
 	}
+
+	// log.Println(payload)
 
 	// create usecase
 	uu := userusecase.New(
@@ -73,6 +75,8 @@ func (u V1User) UpdateNurse(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteJSON(w, status, ErrorResponse{Message: err.Error()})
 		return
 	}
+
+	// log.Println(payload)
 
 	helpers.WriteJSON(w, status, SuccessResponse{
 		Message: "Nurse user updated successfully",

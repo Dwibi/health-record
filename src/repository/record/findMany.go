@@ -1,7 +1,6 @@
 package recordrepository
 
 import (
-	"fmt"
 	"log"
 	"reflect"
 	"strconv"
@@ -11,17 +10,30 @@ import (
 	"github.com/dwibi/health-record/src/entities"
 )
 
-type ResultFindMany struct {
-	IdentityNumber int       `json:"identityNumber"`
-	PhoneNumber    string    `json:"phoneNumber"`
-	Name           string    `json:"name"`
-	BirthDate      time.Time `json:"birthDate"`
-	Gender         string    `json:"gender"`
-	CreatedAt      time.Time `json:"createdAt"`
+type identityDetail struct {
+	IdentityNumber      int       `json:"identityNumber"`
+	PhoneNumber         string    `json:"phoneNumber"`
+	Name                string    `json:"name"`
+	BirthDate           time.Time `json:"birthDate"`
+	Gender              string    `json:"gender"`
+	IdentityCardScanImg string    `json:"identityCardScanImg"`
 }
 
-func (i *sPatientRepository) FindMany(filters *entities.PatientSearchFilter) ([]*ResultFindMany, error) {
-	query := "SELECT identity_number, phone_number, name, birth_date, gender, created_at FROM users WHERE 1=1"
+type createdBy struct {
+	Nip    int    `json:"nip"`
+	Name   string `json:"name"`
+	UserId string `json:"userId"`
+}
+type ResultFindMany struct {
+	IdentityDetail identityDetail `json:"identityDetail"`
+	Symptoms       string         `json:"symptoms"`
+	Medications    string         `json:"medications"`
+	CreatedBy      createdBy      `json:"createdBy"`
+	CreatedAt      time.Time      `json:"createdAt"`
+}
+
+func (i *sRecordRepository) FindMany(filters *entities.RecordSearchFilter) ([]*ResultFindMany, error) {
+	query := "SELECT mp.identity_number AS identityNumber, mp.phone_number AS phoneNumber, mp.name AS patientName, mp.birth_date AS birthDate, mp.gender AS gender, mp.identity_card_scan_img AS identityCardScanImg, mr.symptoms AS symptoms, mr.medications AS medications, mr.created_at AS createdAt, u.nip AS nip, u.name AS createdByName, u.id AS userId FROM medical_records mr JOIN medical_patients mp ON mr.identity_number_patient = mp.identity_number JOIN users u ON mr.created_by = u.id WHERE 1=1"
 	params := []interface{}{}
 
 	n := (&entities.PatientSearchFilter{})
@@ -30,18 +42,18 @@ func (i *sPatientRepository) FindMany(filters *entities.PatientSearchFilter) ([]
 		conditions := []string{}
 
 		if filters.IdentityNumber != 0 {
-			conditions = append(conditions, "identity_number = $"+strconv.Itoa(len(params)+1))
+			conditions = append(conditions, "mp.identity_number = $"+strconv.Itoa(len(params)+1))
 			params = append(params, filters.IdentityNumber)
 		}
 
-		if filters.PhoneNumber != 0 {
-			conditions = append(conditions, "id LIKE $"+strconv.Itoa(len(params)+1))
-			params = append(params, "%"+strconv.Itoa(filters.PhoneNumber)+"%")
+		if filters.UserId != "" {
+			conditions = append(conditions, "u.id = $"+strconv.Itoa(len(params)+1))
+			params = append(params, filters.UserId)
 		}
 
-		if filters.Name != "" {
-			conditions = append(conditions, "lower(name) LIKE lower($"+strconv.Itoa(len(params)+1)+")")
-			params = append(params, "%"+filters.Name+"%")
+		if filters.Nip != "" {
+			conditions = append(conditions, "u.nip LIKE $"+strconv.Itoa(len(params)+1))
+			params = append(params, "%"+filters.Nip+"%")
 		}
 
 		if len(conditions) > 0 {
@@ -52,13 +64,13 @@ func (i *sPatientRepository) FindMany(filters *entities.PatientSearchFilter) ([]
 
 	if filters.CreatedAt != "" {
 		if filters.CreatedAt == "desc" {
-			query += " ORDER BY created_at DESC"
+			query += " ORDER BY mr.created_at DESC"
 		}
 		if filters.CreatedAt == "asc" {
-			query += " ORDER BY created_at ASC"
+			query += " ORDER BY mr.created_at ASC"
 		}
 	} else {
-		query += " ORDER BY created_at ASC"
+		query += " ORDER BY mr.created_at DESC"
 	}
 
 	if filters.Limit == 0 {
@@ -75,7 +87,7 @@ func (i *sPatientRepository) FindMany(filters *entities.PatientSearchFilter) ([]
 		params = append(params, filters.Offset)
 	}
 
-	fmt.Println(query)
+	// fmt.Println(query)
 
 	rows, err := i.DB.Query(query, params...)
 	if err != nil {
@@ -84,22 +96,46 @@ func (i *sPatientRepository) FindMany(filters *entities.PatientSearchFilter) ([]
 	}
 	defer rows.Close()
 
-	users := make([]*ResultFindMany, 0)
+	data := make([]*ResultFindMany, 0)
 	for rows.Next() {
-		c := new(ResultFindMany)
-		var identityNum string
-		err := rows.Scan(&identityNum, &c.PhoneNumber, &c.Name, &c.CreatedAt)
+		var (
+			id        identityDetail
+			cb        createdBy
+			symptoms  string
+			meds      string
+			createdAt time.Time
+		)
+		err := rows.Scan(
+			&id.IdentityNumber,
+			&id.PhoneNumber,
+			&id.Name,
+			&id.BirthDate,
+			&id.Gender,
+			&id.IdentityCardScanImg,
+			&symptoms,
+			&meds,
+			&createdAt,
+			&cb.Nip,
+			&cb.Name,
+			&cb.UserId,
+		)
 		if err != nil {
 			return nil, err
 		}
-		c.IdentityNumber = func() int { n, _ := strconv.Atoi(identityNum); return n }()
-		fmt.Println(c)
-		users = append(users, c)
+		record := &ResultFindMany{
+			IdentityDetail: id,
+			Symptoms:       symptoms,
+			Medications:    meds,
+			CreatedBy:      cb,
+			CreatedAt:      createdAt,
+		}
+
+		data = append(data, record)
 	}
 
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 
-	return users, nil
+	return data, nil
 }

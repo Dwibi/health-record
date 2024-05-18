@@ -37,12 +37,13 @@ func (i *sUserUseCase) UpdateNurseAccess(r *ParamsUpdateUserNurseAccess) (int, e
 	}
 
 	if user == nil {
-		log.Println("masuk ke error 404")
 		return http.StatusNotFound, errors.New("user not found")
 	}
 
+	log.Println(user.NIP)
+
 	if isNurse := helpers.IsItNurse(user.NIP); !isNurse {
-		return http.StatusBadRequest, errors.New("can only give access to nurse")
+		return http.StatusNotFound, errors.New("can only give access to nurse / user nip not start with 303")
 	}
 
 	// Hash password

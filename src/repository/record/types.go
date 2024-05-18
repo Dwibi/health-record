@@ -2,6 +2,8 @@ package recordrepository
 
 import (
 	"database/sql"
+
+	"github.com/dwibi/health-record/src/entities"
 )
 
 type sRecordRepository struct {
@@ -10,7 +12,7 @@ type sRecordRepository struct {
 
 type IRecordRepository interface {
 	Create(*ParamsCreate) error
-	// FindMany(*entities.PatientSearchFilter) ([]*ResultFindMany, error)
+	FindMany(filters *entities.RecordSearchFilter) ([]*ResultFindMany, error)
 }
 
 func New(db *sql.DB) IRecordRepository {

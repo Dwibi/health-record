@@ -35,7 +35,7 @@ func (u V1User) LoginNurse(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if isNurse := helpers.IsItNurse(nipStr); !isNurse {
-		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: "nip should start 303"})
+		helpers.WriteJSON(w, http.StatusNotFound, ErrorResponse{Message: "nip should start 303"})
 		return
 	}
 

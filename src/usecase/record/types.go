@@ -15,7 +15,7 @@ type sRecordUseCase struct {
 type IRecordUseCase interface {
 	// RegisterIt(*ParamsRegisterUserIt) (*ResultUser, int, error)
 	Create(*ParamsCreate) (int, error)
-	FindMany(r *ParamsFindMany) ([]*patientrepository.ResultFindMany, int, error)
+	FindMany(r *ParamsFindMany) ([]*recordrepository.ResultFindMany, int, error)
 	// FindMany(r *ParamsFindMany) ([]*patientrepository.ResultFindMany, int, error)
 	// FindMany(r *ParamsFindMany) ([]*userrepository.ResultFindMany, int, error)
 }

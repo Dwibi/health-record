@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
-    nip CHAR(13) NOT NULL,
+    nip VARCHAR(15) NOT NULL,
     name VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
     identity_card_scan_img VARCHAR(255),

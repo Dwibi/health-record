@@ -1,7 +1,6 @@
 package v1recordcontroller
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -29,7 +28,7 @@ func (u V1Record) FindMany(w http.ResponseWriter, r *http.Request) {
 		identityNum, err := strconv.Atoi(identityStr)
 		if err != nil {
 			helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{
-				Message: "Invalid value for 'userId'",
+				Message: "Invalid value for 'identityDetail.identityNumber'",
 			})
 			return
 		}
@@ -41,7 +40,7 @@ func (u V1Record) FindMany(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if userNipStr := queryParams.Get("createdBy.nip"); userNipStr != "" {
-		filters.UserId = userNipStr
+		filters.Nip = userNipStr
 	}
 
 	if limitStr := queryParams.Get("limit"); limitStr != "" {
@@ -72,8 +71,6 @@ func (u V1Record) FindMany(w http.ResponseWriter, r *http.Request) {
 			filters.CreatedAt = lowCreatedAt
 		}
 	}
-
-	fmt.Println(filters)
 
 	// create usecase
 	uu := recordusecase.New(

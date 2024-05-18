@@ -8,7 +8,7 @@ type ParamsCreate struct {
 }
 
 func (i *sRecordRepository) Create(p *ParamsCreate) error {
-	_, err := i.DB.Exec("INSERT INTO medical_records (iidentity_number, symptoms, medications, created_by) VALUES ($1, $2, $3, $4)", p.IdentityNumber, p.Symptoms, p.Medications, p.CreatedBy)
+	_, err := i.DB.Exec("INSERT INTO medical_records (identity_number_patient, symptoms, medications, created_by) VALUES ($1, $2, $3, $4)", p.IdentityNumber, p.Symptoms, p.Medications, p.CreatedBy)
 
 	if err != nil {
 		return err

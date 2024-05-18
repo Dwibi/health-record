@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"errors"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
@@ -20,9 +21,24 @@ var Validate = validator.New()
 	- the eleventh and thirteenth, fill it with three random digit, starts from `000` till `999`
 */
 
+func ValidateURLWithDomain(u string) error {
+	parsedURL, err := url.ParseRequestURI(u)
+	if err != nil {
+		return errors.New("invalid URL format")
+	}
+
+	// Regular expression to match a valid domain
+	re := regexp.MustCompile(`\.[a-z]{2,}$`)
+	if !re.MatchString(parsedURL.Host) {
+		return errors.New("URL must contain a valid domain")
+	}
+
+	return nil
+}
+
 func ValidateNIP(nip string) error {
-	if len(nip) != 13 {
-		return errors.New("nip must be 13 digits")
+	if len(nip) < 13 || len(nip) > 15 {
+		return errors.New("nip must be 13 - 15 digits")
 	}
 
 	if nip[3] != '1' && nip[3] != '2' {
@@ -42,9 +58,9 @@ func ValidateNIP(nip string) error {
 		return errors.New("the ninth and tenth, fill it with month, starts from `01` till `12`")
 	}
 
-	randomDigits := nip[10:13]
-	if matched, _ := regexp.MatchString(`^\d{3}$`, randomDigits); !matched {
-		return errors.New("the eleventh and thirteenth, must fill it with three random digit, starts from `000` till `999`")
+	randomDigits := nip[10:]
+	if matched, _ := regexp.MatchString(`^\d{3}\d{0,4}$`, randomDigits); !matched {
+		return errors.New("the eleventh and last, fill it with random digit, starts from `000` till `99999`")
 	}
 
 	return nil
@@ -75,4 +91,20 @@ func ValidateInaPhoneNum(phoneNum string) bool {
 func ValidateGender(gender string) bool {
 	// identityStr := strconv.Itoa(identityNum)
 	return strings.ToLower(gender) == "male" || strings.ToLower(gender) == "female"
+}
+
+func ValidateDateFormat(date string) bool {
+	formats := []string{
+		time.RFC3339,              // "2006-01-02T15:04:05Z07:00"
+		"2006-01-02",              // "2006-01-02"
+		"2006-01-02T15:04:05",     // "2006-01-02T15:04:05"
+		"2006-01-02T15:04:05.999", // "2006-01-02T15:04:05.999"
+	}
+
+	for _, format := range formats {
+		if _, err := time.Parse(format, date); err == nil {
+			return true
+		}
+	}
+	return false
 }

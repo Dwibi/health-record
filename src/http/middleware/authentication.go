@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -21,7 +20,7 @@ func AuthMiddleware(handlerFunc http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		log.Println("masuk")
+		// log.Println("masuk")
 
 		tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
 
@@ -33,7 +32,7 @@ func AuthMiddleware(handlerFunc http.HandlerFunc) http.HandlerFunc {
 		// TODO: create errorResponse for this
 		if err != nil {
 			helpers.WriteJSON(w, http.StatusUnauthorized, "Unauthorized")
-			fmt.Println("errornya di sini")
+			// fmt.Println("errornya di sini")
 			log.Println(err)
 			return
 		}
@@ -46,7 +45,7 @@ func AuthMiddleware(handlerFunc http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		fmt.Println(claims.UserId)
+		// fmt.Println(claims.UserId)
 
 		// Attach user information to the request context
 		ctx := context.WithValue(r.Context(), helpers.UserContextKey, claims.UserId)

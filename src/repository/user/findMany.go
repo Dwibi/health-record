@@ -1,7 +1,6 @@
 package userrepository
 
 import (
-	"fmt"
 	"log"
 	"reflect"
 	"strconv"
@@ -23,7 +22,7 @@ type ResultFindMany struct {
 }
 
 func (i *sUserRepository) FindMany(filters *entities.UserSearchFilter) ([]*ResultFindMany, error) {
-	query := "SELECT id, nip, name, created_at FROM users WHERE 1=1"
+	query := "SELECT id, nip, name, created_at FROM users WHERE deleted_at IS NULL AND 1=1"
 	params := []interface{}{}
 
 	n := (&entities.UserSearchFilter{})
@@ -37,7 +36,7 @@ func (i *sUserRepository) FindMany(filters *entities.UserSearchFilter) ([]*Resul
 		}
 
 		if filters.NIP != 0 {
-			conditions = append(conditions, "id LIKE $"+strconv.Itoa(len(params)+1))
+			conditions = append(conditions, "nip LIKE $"+strconv.Itoa(len(params)+1))
 			params = append(params, "%"+strconv.Itoa(filters.NIP)+"%")
 		}
 
@@ -48,11 +47,11 @@ func (i *sUserRepository) FindMany(filters *entities.UserSearchFilter) ([]*Resul
 
 		if filters.Role != "" {
 			if filters.Role == "it" {
-				conditions = append(conditions, "id LIKE $"+strconv.Itoa(len(params)+1))
+				conditions = append(conditions, "nip LIKE $"+strconv.Itoa(len(params)+1))
 				params = append(params, "615%")
 			}
 			if filters.Role == "nurse" {
-				conditions = append(conditions, "id LIKE $"+strconv.Itoa(len(params)+1))
+				conditions = append(conditions, "nip LIKE $"+strconv.Itoa(len(params)+1))
 				params = append(params, "303%")
 			}
 		}
@@ -68,10 +67,9 @@ func (i *sUserRepository) FindMany(filters *entities.UserSearchFilter) ([]*Resul
 			query += " ORDER BY created_at DESC"
 		} else if filters.CreatedAt == "asc" {
 			query += " ORDER BY created_at ASC"
-		} else {
-			query += " ORDER BY created_at ASC"
-
 		}
+	} else {
+		query += " ORDER BY created_at DESC"
 	}
 
 	if filters.Limit == 0 {
@@ -88,7 +86,7 @@ func (i *sUserRepository) FindMany(filters *entities.UserSearchFilter) ([]*Resul
 		params = append(params, filters.Offset)
 	}
 
-	fmt.Println(query)
+	// fmt.Println(query)
 
 	rows, err := i.DB.Query(query, params...)
 	if err != nil {
@@ -108,7 +106,7 @@ func (i *sUserRepository) FindMany(filters *entities.UserSearchFilter) ([]*Resul
 		}
 		c.UserId = strconv.Itoa(userId)
 		c.Nip = func() int { n, _ := strconv.Atoi(nip); return n }()
-		fmt.Println(c)
+		// fmt.Println(c)
 		users = append(users, c)
 	}
 

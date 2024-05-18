@@ -14,7 +14,7 @@ import (
 type registerNurseRequest struct {
 	NIP                 int    `json:"nip" validate:"required,number"`
 	Name                string `json:"name" validate:"required,min=5,max=50"`
-	IdentityCardScanImg string `json:"identityCardScanImg" validate:"required,url"`
+	IdentityCardScanImg string `json:"identityCardScanImg" validate:"required,uri"`
 }
 
 func (u V1User) RegisterNurse(w http.ResponseWriter, r *http.Request) {
@@ -25,10 +25,7 @@ func (u V1User) RegisterNurse(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(userIdClaims)
-
 	payload := new(registerNurseRequest)
-
 	// check payload
 	if err := helpers.ParseJSON(r, &payload); err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
@@ -38,9 +35,18 @@ func (u V1User) RegisterNurse(w http.ResponseWriter, r *http.Request) {
 	// check validation
 	if err := helpers.Validate.Struct(payload); err != nil {
 		errors := err.(validator.ValidationErrors)
+		// log.Println(errors)
 		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: fmt.Errorf("invalid payload: %v", errors).Error()})
 		return
 	}
+
+	if err := helpers.ValidateURLWithDomain(payload.IdentityCardScanImg); err != nil {
+		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	// log.
+	// log.Println(payload)
 
 	nipStr := strconv.Itoa(payload.NIP)
 
@@ -73,8 +79,11 @@ func (u V1User) RegisterNurse(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// log.Println(payload)
+
 	helpers.WriteJSON(w, status, SuccessResponse{
 		Message: "User registered successfully",
 		Data:    data,
 	})
+
 }

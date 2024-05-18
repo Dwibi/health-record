@@ -20,7 +20,7 @@ type V1Record struct {
 
 type iVRecord interface {
 	Create(http.ResponseWriter, *http.Request)
-	// FindMany(http.ResponseWriter, *http.Request)
+	FindMany(http.ResponseWriter, *http.Request)
 }
 
 func New(v1Record *V1Record) iVRecord {

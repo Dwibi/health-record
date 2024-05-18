@@ -34,6 +34,11 @@ func (i *sRecordUseCase) Create(r *ParamsCreate) (int, error) {
 		return http.StatusUnauthorized, errors.New("unauthorize")
 	}
 
+	// Check if the identity number already exist
+	if isPatientExist, _ := i.patientRepository.IsExist(strconv.Itoa(r.IdentityNumber)); !isPatientExist {
+		return http.StatusNotFound, errors.New("patient is not exists")
+	}
+
 	// create patient
 	err = i.recordRepository.Create(&recordrepository.ParamsCreate{
 		CreatedBy:      r.ReqUserId,

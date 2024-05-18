@@ -6,7 +6,7 @@ import (
 
 	"github.com/dwibi/health-record/src/entities"
 	"github.com/dwibi/health-record/src/helpers"
-	patientrepository "github.com/dwibi/health-record/src/repository/patient"
+	recordrepository "github.com/dwibi/health-record/src/repository/record"
 )
 
 type ParamsFindMany struct {
@@ -14,7 +14,7 @@ type ParamsFindMany struct {
 	ReqUserId   int
 }
 
-func (i *sRecordUseCase) FindMany(r *ParamsFindMany) ([]*patientrepository.ResultFindMany, int, error) {
+func (i *sRecordUseCase) FindMany(r *ParamsFindMany) ([]*recordrepository.ResultFindMany, int, error) {
 	// check user role that request this call
 	user, err := i.userRepository.GetUserById(r.ReqUserId)
 	if err != nil {
@@ -30,7 +30,7 @@ func (i *sRecordUseCase) FindMany(r *ParamsFindMany) ([]*patientrepository.Resul
 	}
 
 	// Get data from repository
-	data, err := i.patientRepository.FindMany(r.QuerySearch)
+	data, err := i.recordRepository.FindMany(r.QuerySearch)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}

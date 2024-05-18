@@ -39,7 +39,7 @@ func (u V1User) DeleteNurse(w http.ResponseWriter, r *http.Request) {
 	}
 
 	helpers.WriteJSON(w, status, SuccessResponse{
-		Message: "Update nurse access successfully",
+		Message: "Delete nurse successfully",
 		Data:    nil,
 	})
 }
