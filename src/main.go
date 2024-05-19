@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/dwibi/health-record/src/drivers/db"
 	"github.com/dwibi/health-record/src/http"
-	"github.com/dwibi/health-record/src/http/drivers/db"
 	"github.com/joho/godotenv"
 
 	"github.com/aws/aws-sdk-go-v2/config"
