@@ -27,6 +27,8 @@ func (h *Http) Launch() error {
 	router := mux.NewRouter()
 	subrouter := router.PathPrefix("/v1").Subrouter()
 
+	// subrouter.Use(middleware.LoggingMiddleware)
+
 	v1 := routes.New(&routes.RouterTest{
 		Router:   subrouter,
 		DB:       h.DB,

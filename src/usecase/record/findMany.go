@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/dwibi/health-record/src/entities"
-	"github.com/dwibi/health-record/src/helpers"
 	recordrepository "github.com/dwibi/health-record/src/repository/record"
 )
 
@@ -22,10 +21,6 @@ func (i *sRecordUseCase) FindMany(r *ParamsFindMany) ([]*recordrepository.Result
 	}
 
 	if user == nil {
-		return nil, http.StatusUnauthorized, errors.New("unauthorize")
-	}
-
-	if isIT := helpers.IsItUser(user.NIP); !isIT {
 		return nil, http.StatusUnauthorized, errors.New("unauthorize")
 	}
 

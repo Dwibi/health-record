@@ -16,3 +16,8 @@ CREATE TABLE IF NOT EXISTS medical_patients (
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX IF NOT EXISTS idx_medical_patients_identity_number ON medical_patients (identity_number);
+CREATE INDEX IF NOT EXISTS idx_medical_patients_name_lower ON medical_patients (LOWER(name));
+CREATE INDEX IF NOT EXISTS idx_medical_patients_phone_number ON medical_patients (phone_number);
+CREATE INDEX IF NOT EXISTS idx_medical_patients_created_at ON medical_patients (created_at);

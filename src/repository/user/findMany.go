@@ -86,8 +86,6 @@ func (i *sUserRepository) FindMany(filters *entities.UserSearchFilter) ([]*Resul
 		params = append(params, filters.Offset)
 	}
 
-	// fmt.Println(query)
-
 	rows, err := i.DB.Query(query, params...)
 	if err != nil {
 		log.Printf("Error finding cat: %s", err)
@@ -106,7 +104,6 @@ func (i *sUserRepository) FindMany(filters *entities.UserSearchFilter) ([]*Resul
 		}
 		c.UserId = strconv.Itoa(userId)
 		c.Nip = func() int { n, _ := strconv.Atoi(nip); return n }()
-		// fmt.Println(c)
 		users = append(users, c)
 	}
 

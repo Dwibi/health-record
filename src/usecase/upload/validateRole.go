@@ -3,8 +3,6 @@ package uploadusecase
 import (
 	"errors"
 	"net/http"
-
-	"github.com/dwibi/health-record/src/helpers"
 )
 
 type ParamsCreate struct {
@@ -25,13 +23,6 @@ func (i *sUploadUseCase) ValidateRole(reqUserId int) (int, error) {
 	}
 
 	if user == nil {
-		return http.StatusUnauthorized, errors.New("unauthorize")
-	}
-
-	isIT := helpers.IsItUser(user.NIP)
-	isNurse := helpers.IsItNurse(user.NIP)
-
-	if !isIT && !isNurse {
 		return http.StatusUnauthorized, errors.New("unauthorize")
 	}
 

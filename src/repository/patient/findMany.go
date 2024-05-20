@@ -74,8 +74,6 @@ func (i *sPatientRepository) FindMany(filters *entities.PatientSearchFilter) ([]
 		params = append(params, filters.Offset)
 	}
 
-	// fmt.Println(query)
-
 	rows, err := i.DB.Query(query, params...)
 	if err != nil {
 		log.Printf("Error finding cat: %s", err)
@@ -92,11 +90,8 @@ func (i *sPatientRepository) FindMany(filters *entities.PatientSearchFilter) ([]
 			return nil, err
 		}
 		c.IdentityNumber = func() int { n, _ := strconv.Atoi(identityNum); return n }()
-		// fmt.Println(c)
 		users = append(users, c)
 	}
-
-	log.Println(filters)
 
 	if err := rows.Err(); err != nil {
 		return nil, err

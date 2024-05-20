@@ -71,7 +71,6 @@ func (u V1Upload) Image(w http.ResponseWriter, r *http.Request) {
 
 	// Define S3 bucket and key
 	bucket := os.Getenv("AWS_S3_BUCKET_NAME")
-	// log.Println(bucket)
 	key := newFileName
 
 	result, err := u.Uploader.Upload(context.TODO(), &s3.PutObjectInput{

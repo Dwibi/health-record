@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -20,8 +19,6 @@ func AuthMiddleware(handlerFunc http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		// log.Println("masuk")
-
 		tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
 
 		// Parse the JWT token
@@ -32,8 +29,6 @@ func AuthMiddleware(handlerFunc http.HandlerFunc) http.HandlerFunc {
 		// TODO: create errorResponse for this
 		if err != nil {
 			helpers.WriteJSON(w, http.StatusUnauthorized, "Unauthorized")
-			// fmt.Println("errornya di sini")
-			log.Println(err)
 			return
 		}
 
@@ -44,8 +39,6 @@ func AuthMiddleware(handlerFunc http.HandlerFunc) http.HandlerFunc {
 			helpers.WriteJSON(w, http.StatusUnauthorized, "Unauthorized")
 			return
 		}
-
-		// fmt.Println(claims.UserId)
 
 		// Attach user information to the request context
 		ctx := context.WithValue(r.Context(), helpers.UserContextKey, claims.UserId)

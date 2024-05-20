@@ -81,9 +81,6 @@ func (u V1User) FindMany(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// fmt.Println("||||||||||||")
-	// fmt.Println(filters)
-
 	// create usecase
 	uu := userusecase.New(
 		userrepository.New(u.DB),

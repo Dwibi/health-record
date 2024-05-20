@@ -2,7 +2,6 @@ package userusecase
 
 import (
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/dwibi/health-record/src/helpers"
@@ -39,8 +38,6 @@ func (i *sUserUseCase) UpdateNurseAccess(r *ParamsUpdateUserNurseAccess) (int, e
 	if user == nil {
 		return http.StatusNotFound, errors.New("user not found")
 	}
-
-	log.Println(user.NIP)
 
 	if isNurse := helpers.IsItNurse(user.NIP); !isNurse {
 		return http.StatusNotFound, errors.New("can only give access to nurse / user nip not start with 303")

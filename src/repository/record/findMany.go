@@ -87,8 +87,6 @@ func (i *sRecordRepository) FindMany(filters *entities.RecordSearchFilter) ([]*R
 		params = append(params, filters.Offset)
 	}
 
-	// fmt.Println(query)
-
 	rows, err := i.DB.Query(query, params...)
 	if err != nil {
 		log.Printf("Error finding cat: %s", err)

@@ -1,6 +1,7 @@
 package v1patientcontroller
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -19,6 +20,8 @@ func (u V1Patient) FindMany(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "User information not found in context", http.StatusInternalServerError)
 		return
 	}
+
+	fmt.Println("user id claims :", userIdClaims)
 
 	filters := &entities.PatientSearchFilter{}
 	queryParams := r.URL.Query()
@@ -77,8 +80,6 @@ func (u V1Patient) FindMany(w http.ResponseWriter, r *http.Request) {
 			filters.CreatedAt = lowCreatedAt
 		}
 	}
-
-	// fmt.Println(filters)
 
 	// create usecase
 	uu := patientusecase.New(

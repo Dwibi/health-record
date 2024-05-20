@@ -56,8 +56,6 @@ func (u V1User) UpdateNurse(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// log.Println(payload)
-
 	// create usecase
 	uu := userusecase.New(
 		userrepository.New(u.DB),
@@ -75,8 +73,6 @@ func (u V1User) UpdateNurse(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteJSON(w, status, ErrorResponse{Message: err.Error()})
 		return
 	}
-
-	// log.Println(payload)
 
 	helpers.WriteJSON(w, status, SuccessResponse{
 		Message: "Nurse user updated successfully",

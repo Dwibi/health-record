@@ -36,7 +36,6 @@ func (i *sUserUseCase) RegisterNurse(r *ParamsRegisterUserNurse) (*ResultUser, i
 	isNipExist, _ := i.userRepository.IsExist(r.NIP)
 
 	if isNipExist {
-		// TODO: create file for error message
 		return nil, http.StatusConflict, errors.New("NIP sudah digunakan")
 	}
 

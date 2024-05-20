@@ -19,11 +19,13 @@ func CreateConnection() (*sql.DB, error) {
 	dbParams := os.Getenv("DB_PARAMS")
 
 	strConnection := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?%s", dbUsername, dbPassword, dbHost, dbPort, dbName, dbParams)
-	fmt.Println(strConnection)
 
 	// Define connection pool parameters (adjust as needed)
-	maxOpenConns := 20 // Maximum number of open connections in the pool
-	maxIdleConns := 10 // Maximum number of idle connections in the pool
+	maxOpenConns := 25 // Maximum number of open connections in the pool
+	maxIdleConns := 25 // Maximum number of idle connections in the pool
+
+	// db.SetMaxIdleConns(25)
+	// db.SetMaxOpenConns(25)
 
 	db, err := sql.Open("postgres", strConnection)
 	if err != nil {

@@ -2,7 +2,6 @@ package v1patientcontroller
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
@@ -62,7 +61,6 @@ func (u V1Patient) Create(w http.ResponseWriter, r *http.Request) {
 
 	if isDateValid := helpers.ValidateDateFormat(payload.BirthDate); !isDateValid {
 		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: "should be string with ISO 8601 format"})
-		log.Println(isDateValid)
 		return
 	}
 

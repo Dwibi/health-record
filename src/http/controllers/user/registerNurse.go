@@ -35,7 +35,6 @@ func (u V1User) RegisterNurse(w http.ResponseWriter, r *http.Request) {
 	// check validation
 	if err := helpers.Validate.Struct(payload); err != nil {
 		errors := err.(validator.ValidationErrors)
-		// log.Println(errors)
 		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: fmt.Errorf("invalid payload: %v", errors).Error()})
 		return
 	}
@@ -44,9 +43,6 @@ func (u V1User) RegisterNurse(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteJSON(w, http.StatusBadRequest, ErrorResponse{Message: err.Error()})
 		return
 	}
-
-	// log.
-	// log.Println(payload)
 
 	nipStr := strconv.Itoa(payload.NIP)
 
@@ -78,8 +74,6 @@ func (u V1User) RegisterNurse(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteJSON(w, status, ErrorResponse{Message: err.Error()})
 		return
 	}
-
-	// log.Println(payload)
 
 	helpers.WriteJSON(w, status, SuccessResponse{
 		Message: "User registered successfully",
