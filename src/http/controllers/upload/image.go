@@ -62,6 +62,7 @@ func (u V1Upload) Image(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteJSON(w, status, ErrorResponse{
 			Message: err.Error(),
 		})
+		return
 	}
 
 	// Generate a UUID for the file name

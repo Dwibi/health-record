@@ -4,5 +4,5 @@ DROP INDEX IF EXISTS idx_medical_patients_phone_number;
 DROP INDEX IF EXISTS idx_medical_patients_created_at;
 
 DROP TABLE IF EXISTS medical_patients CASCADE;
-DROP TYPE gender_enum CASCADE;
+DROP TYPE IF EXISTS gender_enum CASCADE;
 

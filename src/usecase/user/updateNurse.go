@@ -43,14 +43,27 @@ func (i *sUserUseCase) UpdateNurse(r *ParamsUpdateUserNurse) (int, error) {
 		return http.StatusNotFound, err
 	}
 
-	// Check if the user is trying to change a non-nurse to a nurse
-	if r.NIP != data.NIP && !helpers.IsItNurse(data.NIP) {
+	// fmt.Println("id :", data.ID)
+	// fmt.Println("NIP :", data.NIP)
+	// isNipUserIT := helpers.IsItUser(data.NIP)
+	// fmt.Println("isNipUserIt :", isNipUserIT)
+
+	if isNipUserIT := helpers.IsItUser(data.NIP); isNipUserIT {
 		return http.StatusNotFound, errors.New("can't change IT user")
 	}
 
-	if r.NIP == data.NIP {
-		return http.StatusConflict, errors.New("NIP sudah digunakan")
-
+	// if r.NIP == data.NIP {
+	// 	return http.StatusConflict, errors.New("NIP sudah digunakan")
+	// }
+	// Check if the user is trying to change a non-nurse to a nurse
+	if r.NIP != data.NIP {
+		isNipExist, err := i.userRepository.IsExist(r.NIP)
+		if err != nil {
+			return http.StatusInternalServerError, err
+		}
+		if isNipExist {
+			return http.StatusConflict, errors.New("NIP sudah digunakan")
+		}
 	}
 
 	// update nurse user into database using repository
